@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>How the sound works — AUDIOLAB</title>
+<style>
+  :root{
+    --bg:#000; --ink:#e5e5e5; --dim:#666; --line:#1a1a1a;
+    --green:#00ff88; --card:#0a0a0a; --muted:#111;
+    --sans: "Open Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink); font-family:var(--sans);
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:820px; margin:0 auto; padding:48px 20px 120px; }
+  header.top{ border-bottom:1px solid var(--line); padding-bottom:28px; margin-bottom:40px; }
+  .eyebrow{ font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--dim); font-weight:700; }
+  h1{ font-size:clamp(2rem,7vw,3.4rem); font-weight:800; letter-spacing:-.03em; line-height:.95; margin:.3em 0 .2em; text-transform:uppercase; }
+  h1 .g{ color:var(--green); }
+  .sub{ color:var(--dim); max-width:60ch; font-size:15px; }
+  h2{ font-size:clamp(1.2rem,4vw,1.7rem); font-weight:800; letter-spacing:-.02em; margin:0; }
+  .step{ border-top:1px solid var(--line); padding-top:34px; margin-top:48px; }
+  .num{ font-family:var(--mono); font-size:12px; color:var(--green); letter-spacing:.15em; font-weight:700; }
+  p{ color:#bdbdbd; }
+  p b, li b{ color:#fff; }
+  .key{ color:var(--green); font-weight:600; }
+  ul{ color:#bdbdbd; padding-left:18px; }
+  li{ margin:.3em 0; }
+  /* demo box */
+  .demo{ background:var(--card); border:1px solid var(--line); padding:18px; margin:20px 0; }
+  .demo .label{ font-size:10px; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); font-weight:700; margin-bottom:14px; }
+  .row{ display:flex; flex-wrap:wrap; gap:12px; align-items:center; }
+  button.b{
+    font-family:var(--sans); font-weight:700; text-transform:uppercase; letter-spacing:.08em; font-size:12px;
+    background:transparent; color:var(--green); border:1px solid var(--green); padding:10px 16px; cursor:pointer;
+    transition:.15s;
+  }
+  button.b:hover{ background:var(--green); color:#000; }
+  button.b.alt{ color:var(--ink); border-color:var(--line); }
+  button.b.alt:hover{ background:var(--ink); color:#000; border-color:var(--ink); }
+  button.b.on{ background:var(--green); color:#000; }
+  .ctl{ display:flex; flex-direction:column; gap:6px; min-width:170px; }
+  .ctl span{ font-size:11px; color:var(--dim); letter-spacing:.06em; text-transform:uppercase; }
+  .ctl b{ color:var(--green); font-family:var(--mono); }
+  input[type=range]{ width:100%; accent-color:var(--green); }
+  select{ background:var(--muted); color:var(--ink); border:1px solid var(--line); padding:8px; font-family:var(--mono); }
+  .readout{ font-family:var(--mono); font-size:13px; color:var(--green); }
+  .state{ font-family:var(--mono); font-size:12px; color:var(--dim); }
+  canvas{ display:block; width:100%; height:120px; background:#060606; border:1px solid var(--line); margin-top:12px; }
+  /* XY pad */
+  .pad{ position:relative; height:200px; background:#060606; border:1px solid var(--line); touch-action:none; cursor:crosshair; overflow:hidden; user-select:none; margin-top:12px; }
+  .pad .cross{ position:absolute; width:14px; height:14px; border:2px solid var(--green); border-radius:50%; transform:translate(-50%,-50%); pointer-events:none; box-shadow:0 0 12px var(--green); }
+  .pad .ax{ position:absolute; font-size:10px; color:var(--dim); letter-spacing:.1em; text-transform:uppercase; pointer-events:none; }
+  pre{ background:#060606; border:1px solid var(--line); border-left:2px solid var(--green); padding:14px 16px; overflow:auto; font-family:var(--mono); font-size:12.5px; line-height:1.6; color:#cfcfcf; }
+  pre .c{ color:#5a5a5a; } /* comment */
+  pre .k{ color:var(--green); }  /* keyword-ish highlight */
+  .tip{ font-size:13px; color:var(--dim); border-left:2px solid var(--line); padding-left:12px; margin-top:14px; }
+  a{ color:var(--green); }
+  .pillline{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-family:var(--mono); font-size:12px; color:var(--dim); margin:6px 0 0; }
+  .pill{ border:1px solid var(--line); padding:4px 9px; color:var(--ink); }
+  .arrow{ color:var(--green); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="eyebrow">AUDIOLAB · How it works</div>
+    <h1>The sound,<br>taken <span class="g">apart</span></h1>
+    <p class="sub">The whole soundscape on the homepage is built with the browser's built-in <b>Web Audio API</b> — no libraries, no audio files, everything generated live. This page rebuilds it one piece at a time. Every box below is <b>real and playable</b>: press the buttons, drag the sliders, move inside the pad. Read the code under each step and you'll be able to explain the homepage end to end.</p>
+    <p class="tip">🔊 Turn your volume to a comfortable level. Audio can only start after you click something — that's a browser rule, explained in Step&nbsp;1.</p>
+  </header>
+
+  <!-- ============ MENTAL MODEL ============ -->
+  <section>
+    <h2>The one idea behind everything: a graph</h2>
+    <p>Web Audio is like a <b>modular synth / guitar pedalboard</b>. You create little boxes called <span class="key">nodes</span> (a tone generator, a volume knob, a filter…) and you <b>connect them with virtual patch cables</b> using <code>.connect()</code>. Sound flows left to right until it reaches the speakers.</p>
+    <div class="pillline">
+      <span class="pill">source</span><span class="arrow">→</span>
+      <span class="pill">effects</span><span class="arrow">→</span>
+      <span class="pill">destination (speakers)</span>
+    </div>
+    <p style="margin-top:14px">That's it. Build nodes, connect them, change their values over time. Now let's build the real ones.</p>
+  </section>
+
+  <!-- ============ STEP 1 ============ -->
+  <section class="step">
+    <div class="num">STEP 01</div>
+    <h2>The AudioContext — the engine</h2>
+    <p>Everything lives inside one <span class="key">AudioContext</span>. It's the studio that runs the audio clock and owns every node. Browsers <b>block sound until the user interacts</b> (so pages can't blast you on load) — so we create it on a click and "resume" it.</p>
+    <div class="demo">
+      <div class="label">Demo · create the engine</div>
+      <div class="row">
+        <button class="b" id="d1create">Create AudioContext</button>
+        <button class="b alt" id="d1beep">Test beep</button>
+        <span class="state" id="d1state">state: not created</span>
+      </div>
+    </div>
+    <pre><span class="c">// One context for the whole app. Created on a user gesture (a click).</span>
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+<span class="c">// If the browser paused it, wake it up:</span>
+if (ctx.state === "suspended") ctx.resume();
+ctx.destination; <span class="c">// ← the speakers. Everything ends up here.</span></pre>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="step">
+    <div class="num">STEP 02</div>
+    <h2>An oscillator — one pure tone</h2>
+    <p>An <span class="key">OscillatorNode</span> generates a tone at a <b>frequency</b> (in Hz = pitch). We send it through a <span class="key">GainNode</span> (a volume knob) before the speakers — always, so we can fade smoothly instead of clicking on/off.</p>
+    <div class="demo">
+      <div class="label">Demo · one oscillator → gain → speakers</div>
+      <div class="row">
+        <button class="b" id="d2btn">Play tone</button>
+        <div class="ctl">
+          <span>Frequency · <b id="d2freqv">220</b> Hz</span>
+          <input type="range" id="d2freq" min="80" max="800" value="220">
+        </div>
+      </div>
+      <div class="pillline">
+        <span class="pill">oscillator</span><span class="arrow">→</span>
+        <span class="pill">gain</span><span class="arrow">→</span>
+        <span class="pill">speakers</span>
+      </div>
+    </div>
+    <pre>const osc  = ctx.createOscillator();
+const gain = ctx.createGain();
+osc.type = "sine";              <span class="c">// sine / square / sawtooth / triangle</span>
+osc.frequency.value = 220;      <span class="c">// pitch in Hz</span>
+gain.gain.value = 0.2;          <span class="c">// keep it gentle</span>
+
+osc.connect(gain);              <span class="c">// patch cable: osc → gain</span>
+gain.connect(ctx.destination);  <span class="c">// patch cable: gain → speakers</span>
+osc.start();                    <span class="c">// an oscillator can only be started ONCE</span></pre>
+    <p class="tip">Note: you can't re-<code>start()</code> an oscillator. To play again you build a fresh one. That's why the demo recreates it each time.</p>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="step">
+    <div class="num">STEP 03</div>
+    <h2>Changing values smoothly</h2>
+    <p>If you set <code>gain.value</code> abruptly you hear a click ("zipper noise"). Audio parameters can instead be <b>scheduled to glide</b>. Two tools we use everywhere:</p>
+    <ul>
+      <li><code>setTargetAtTime(target, now, τ)</code> — ease toward a value with time-constant <code>τ</code>. <b>Great for live controls</b> (this is what the mouse uses).</li>
+      <li><code>exponentialRampToValueAtTime(v, t)</code> — ramp to a value by a deadline. We use it for the 3-second fade-in / fade-out.</li>
+    </ul>
+    <div class="demo">
+      <div class="label">Demo · smooth vs. instant</div>
+      <div class="row">
+        <button class="b" id="d3btn">Play tone</button>
+        <div class="ctl">
+          <span>Volume (glides) · <b id="d3volv">0.20</b></span>
+          <input type="range" id="d3vol" min="0" max="100" value="20">
+        </div>
+        <button class="b alt" id="d3fade">Fade out</button>
+      </div>
+    </div>
+    <pre><span class="c">// Glide toward the new volume over ~60ms — no click:</span>
+gain.gain.setTargetAtTime(newVolume, ctx.currentTime, 0.06);
+
+<span class="c">// Smooth fade to (near) silence over 1.2s. Exponential can't hit 0,</span>
+<span class="c">// so we aim at a tiny number:</span>
+gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.2);</pre>
+  </section>
+
+  <!-- ============ STEP 4 ============ -->
+  <section class="step">
+    <div class="num">STEP 04</div>
+    <h2>The filter + your mouse ⭐</h2>
+    <p>This is the interactive part of the homepage. A <span class="key">BiquadFilterNode</span> set to <b>lowpass</b> removes frequencies above a <b>cutoff</b> — low cutoff = dark/muffled, high cutoff = bright. Its <b>Q</b> (resonance) emphasises frequencies right at the cutoff.</p>
+    <p>We map the <b>mouse position</b> onto those two knobs:</p>
+    <ul>
+      <li><span class="key">X</span> (left → right) → <b>cutoff frequency</b></li>
+      <li><span class="key">Y</span> (top → bottom) → <b>resonance (Q)</b></li>
+    </ul>
+    <p>Move your pointer inside the pad (drag on touch). A rich sawtooth is playing so the filter is obvious:</p>
+    <div class="demo">
+      <div class="label">Demo · move inside the box to play the filter</div>
+      <div class="row">
+        <button class="b" id="d4btn">Start</button>
+        <span class="readout" id="d4read">cutoff —  ·  Q —</span>
+      </div>
+      <div class="pad" id="d4pad">
+        <div class="cross" id="d4cross" style="left:50%; top:50%"></div>
+        <span class="ax" style="left:8px; bottom:6px">cutoff →</span>
+        <span class="ax" style="left:8px; top:6px">↑ resonance</span>
+      </div>
+    </div>
+    <pre>const filter = ctx.createBiquadFilter();
+filter.type = "lowpass";
+
+<span class="c">// x, y come in as 0..1 from the mouse position on screen.</span>
+function aim(x, y) {
+  <span class="c">// Exponential map so pitch feels even to the ear (not linear Hz):</span>
+  const cutoff = 300 * Math.pow(4500 / 300, x);   <span class="c">// 300 Hz … 4500 Hz</span>
+  const q      = 0.5 + (1 - y) * 11.5;            <span class="c">// 0.5 (bottom) … 12 (top)</span>
+
+  <span class="c">// Glide toward the new values so dragging sounds liquid, not steppy:</span>
+  const t = ctx.currentTime;
+  filter.frequency.setTargetAtTime(cutoff, t, 0.08);
+  filter.Q.setTargetAtTime(q, t, 0.08);
+}
+
+<span class="c">// On the real page we listen on the whole window while sound is on:</span>
+window.addEventListener("pointermove", (e) => {
+  aim(e.clientX / window.innerWidth, e.clientY / window.innerHeight);
+});</pre>
+    <p class="tip">Why <code>Math.pow</code>? Pitch is logarithmic — the gap 100→200 Hz sounds the same size as 1000→2000 Hz. An exponential map makes the left-to-right sweep feel even instead of bunched up at the bottom.</p>
+  </section>
+
+  <!-- ============ STEP 5 ============ -->
+  <section class="step">
+    <div class="num">STEP 05</div>
+    <h2>The drone chord — detune &amp; LFOs</h2>
+    <p>The homepage layers <b>four</b> oscillators tuned to an A–E–A–E open fifth (<code>110, 164.81, 220, 329.63 Hz</code>). Two tricks make it feel alive:</p>
+    <ul>
+      <li><b>Detune</b> — each voice is shifted a few cents. Slightly out-of-tune copies <b>beat</b> against each other → shimmer.</li>
+      <li><b>LFO</b> (Low-Frequency Oscillator) — an oscillator so slow (~0.05 Hz, one cycle every 20s) you don't hear it as a tone; instead it's wired to a <b>gain</b> to slowly swell each voice in and out.</li>
+    </ul>
+    <div class="demo">
+      <div class="label">Demo · the breathing chord</div>
+      <div class="row">
+        <button class="b" id="d5btn">Play chord</button>
+        <span class="state">4 oscillators · detuned · slow LFO swells</span>
+      </div>
+    </div>
+    <pre>[110, 164.81, 220, 329.63].forEach((freq, i) => {
+  const osc = ctx.createOscillator();
+  osc.frequency.value = freq;
+  osc.detune.value = (i - 1.5) * 4;        <span class="c">// a few cents apart → beating</span>
+
+  const g = ctx.createGain();
+  g.gain.value = 0.2;
+
+  <span class="c">// A very slow oscillator wired into the gain = automatic swells:</span>
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 0.03 + i * 0.017;  <span class="c">// ~one cycle every 20–30s</span>
+  const lfoAmt = ctx.createGain();
+  lfoAmt.gain.value = 0.1;
+  lfo.connect(lfoAmt).connect(g.gain);     <span class="c">// LFO modulates volume</span>
+
+  osc.connect(g).connect(filter);          <span class="c">// into the shared filter</span>
+  osc.start(); lfo.start();
+});</pre>
+  </section>
+
+  <!-- ============ STEP 6 ============ -->
+  <section class="step">
+    <div class="num">STEP 06</div>
+    <h2>The oscilloscope — drawing the sound</h2>
+    <p>The green line is not decoration — it's the <b>actual waveform</b>. An <span class="key">AnalyserNode</span> taps the signal and hands us the raw samples; we redraw them onto a <code>&lt;canvas&gt;</code> ~60×/second with <code>requestAnimationFrame</code>. Change the wave shape and watch the line change:</p>
+    <div class="demo">
+      <div class="label">Demo · live waveform</div>
+      <div class="row">
+        <button class="b" id="d6btn">Start</button>
+        <div class="ctl">
+          <span>Wave shape</span>
+          <select id="d6type">
+            <option value="sine">sine</option>
+            <option value="triangle">triangle</option>
+            <option value="sawtooth">sawtooth</option>
+            <option value="square">square</option>
+          </select>
+        </div>
+      </div>
+      <canvas id="d6canvas"></canvas>
+    </div>
+    <pre>const analyser = ctx.createAnalyser();
+analyser.fftSize = 2048;            <span class="c">// how many samples we read</span>
+master.connect(analyser);          <span class="c">// tap the output (a side branch)</span>
+
+const data = new Uint8Array(analyser.fftSize);
+function draw() {
+  requestAnimationFrame(draw);                 <span class="c">// loop every frame</span>
+  analyser.getByteTimeDomainData(data);        <span class="c">// grab the waveform</span>
+  ctx2d.clearRect(0, 0, w, h);
+  ctx2d.beginPath();
+  data.forEach((v, i) => {
+    const x = (i / data.length) * w;
+    const y = (v / 128) * (h / 2);             <span class="c">// 128 = the centre line</span>
+    i ? ctx2d.lineTo(x, y) : ctx2d.moveTo(x, y);
+  });
+  ctx2d.strokeStyle = "#00ff88";
+  ctx2d.stroke();
+}</pre>
+  </section>
+
+  <!-- ============ STEP 7 ============ -->
+  <section class="step">
+    <div class="num">STEP 07</div>
+    <h2>Everything at once — the homepage engine</h2>
+    <p>Now stack it all: the <b>chord</b> + a quiet <b>noise</b> layer → shared <b>lowpass filter</b> → <b>master gain</b> → speakers, with the <b>analyser</b> feeding the scope and your <b>mouse</b> driving the filter. This is, in miniature, exactly what runs on the homepage.</p>
+    <div class="demo">
+      <div class="label">Demo · the full patch</div>
+      <div class="row">
+        <button class="b" id="d7btn">Enter the signal</button>
+        <span class="readout" id="d7read">cutoff —  ·  Q —</span>
+      </div>
+      <div class="pad" id="d7pad" style="height:150px">
+        <div class="cross" id="d7cross" style="left:50%; top:50%"></div>
+        <span class="ax" style="left:8px; bottom:6px">cutoff →</span>
+        <span class="ax" style="left:8px; top:6px">↑ resonance</span>
+      </div>
+      <canvas id="d7canvas"></canvas>
+    </div>
+    <div class="pillline">
+      <span class="pill">chord (4 osc)</span><span class="arrow">→</span>
+      <span class="pill">+ noise</span><span class="arrow">→</span>
+      <span class="pill">lowpass ⟵ mouse</span><span class="arrow">→</span>
+      <span class="pill">master gain</span><span class="arrow">→</span>
+      <span class="pill">speakers</span>
+      <span class="arrow">⟂</span><span class="pill">analyser → scope</span>
+    </div>
+    <p style="margin-top:20px">That's the entire concept. From here the creative directions are: a generative note sequencer (melody), reverb/delay (space), scroll- or section-reactive moods, a shareable URL "seed" (a reproducible score), or mic input so the page literally <i>listens back</i>.</p>
+    <p class="tip">Open the real thing at <a href="/">the homepage</a>, press <b>Enter the signal</b>, and move your mouse — same filter, same scope, same idea.</p>
+  </section>
+
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   One shared AudioContext, created on first user gesture.
+   Each demo manages its own nodes + a running flag, and cleans up on stop.
+--------------------------------------------------------------------------- */
+let ac = null;
+function audio(){
+  if(!ac) ac = new (window.AudioContext || window.webkitAudioContext)();
+  if(ac.state === "suspended") ac.resume();
+  return ac;
+}
+const $ = (id) => document.getElementById(id);
+
+/* ---- STEP 1: context + test beep ---- */
+$("d1create").onclick = () => {
+  const c = audio();
+  $("d1state").textContent = "state: " + c.state;
+};
+$("d1beep").onclick = () => {
+  const c = audio();
+  const o = c.createOscillator(), g = c.createGain();
+  o.frequency.value = 440; g.gain.value = 0.0001;
+  o.connect(g).connect(c.destination); o.start();
+  const t = c.currentTime;
+  g.gain.exponentialRampToValueAtTime(0.2, t + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+  o.stop(t + 0.55);
+  $("d1state").textContent = "state: " + c.state + "  · beep!";
+};
+
+/* ---- STEP 2: one oscillator ---- */
+let d2osc = null, d2gain = null;
+$("d2freq").oninput = (e) => {
+  $("d2freqv").textContent = e.target.value;
+  if(d2osc) d2osc.frequency.setTargetAtTime(+e.target.value, audio().currentTime, 0.03);
+};
+$("d2btn").onclick = (e) => {
+  const c = audio();
+  if(d2osc){ d2osc.stop(); d2osc = null; e.target.classList.remove("on"); e.target.textContent = "Play tone"; return; }
+  d2osc = c.createOscillator(); d2gain = c.createGain();
+  d2osc.type = "sine"; d2osc.frequency.value = +$("d2freq").value;
+  d2gain.gain.value = 0.2;
+  d2osc.connect(d2gain).connect(c.destination); d2osc.start();
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+};
+
+/* ---- STEP 3: smooth gain ---- */
+let d3osc = null, d3gain = null;
+$("d3vol").oninput = (e) => {
+  const v = e.target.value / 100;
+  $("d3volv").textContent = v.toFixed(2);
+  if(d3gain) d3gain.gain.setTargetAtTime(v, audio().currentTime, 0.06);
+};
+$("d3btn").onclick = (e) => {
+  const c = audio();
+  if(d3osc){ d3osc.stop(); d3osc = null; e.target.classList.remove("on"); e.target.textContent = "Play tone"; return; }
+  d3osc = c.createOscillator(); d3gain = c.createGain();
+  d3osc.frequency.value = 220; d3gain.gain.value = $("d3vol").value/100;
+  d3osc.connect(d3gain).connect(c.destination); d3osc.start();
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+};
+$("d3fade").onclick = () => {
+  if(d3gain) d3gain.gain.exponentialRampToValueAtTime(0.0001, audio().currentTime + 1.2);
+};
+
+/* ---- shared XY-pad helper ---- */
+function attachPad(padEl, crossEl, onMove){
+  let active = false;
+  const handle = (e) => {
+    const r = padEl.getBoundingClientRect();
+    const x = Math.min(Math.max((e.clientX - r.left) / r.width, 0), 1);
+    const y = Math.min(Math.max((e.clientY - r.top) / r.height, 0), 1);
+    crossEl.style.left = (x*100) + "%";
+    crossEl.style.top  = (y*100) + "%";
+    onMove(x, y);
+  };
+  padEl.addEventListener("pointerdown", (e) => { active = true; padEl.setPointerCapture(e.pointerId); handle(e); });
+  padEl.addEventListener("pointermove", (e) => { if(active || e.pointerType === "mouse") handle(e); });
+  padEl.addEventListener("pointerup",   () => { active = false; });
+}
+
+/* ---- STEP 4: filter + mouse ---- */
+let d4osc = null, d4filter = null, d4gain = null;
+function d4aim(x, y){
+  if(!d4filter) return;
+  const cutoff = 300 * Math.pow(4500/300, x);
+  const q = 0.5 + (1 - y) * 11.5;
+  const t = audio().currentTime;
+  d4filter.frequency.setTargetAtTime(cutoff, t, 0.08);
+  d4filter.Q.setTargetAtTime(q, t, 0.08);
+  $("d4read").textContent = `cutoff ${Math.round(cutoff)} Hz  ·  Q ${q.toFixed(1)}`;
+}
+attachPad($("d4pad"), $("d4cross"), d4aim);
+$("d4btn").onclick = (e) => {
+  const c = audio();
+  if(d4osc){ d4osc.stop(); d4osc = null; e.target.classList.remove("on"); e.target.textContent = "Start"; return; }
+  d4osc = c.createOscillator(); d4filter = c.createBiquadFilter(); d4gain = c.createGain();
+  d4osc.type = "sawtooth"; d4osc.frequency.value = 110;
+  d4filter.type = "lowpass"; d4filter.frequency.value = 900; d4filter.Q.value = 4;
+  d4gain.gain.value = 0.15;
+  d4osc.connect(d4filter).connect(d4gain).connect(c.destination); d4osc.start();
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+  d4aim(0.5, 0.5);
+};
+
+/* ---- STEP 5: drone chord ---- */
+let d5nodes = null;
+$("d5btn").onclick = (e) => {
+  const c = audio();
+  if(d5nodes){ d5nodes.forEach(n => n.stop && n.stop()); d5nodes = null; e.target.classList.remove("on"); e.target.textContent = "Play chord"; return; }
+  d5nodes = [];
+  const out = c.createGain(); out.gain.value = 0.9; out.connect(c.destination);
+  [110, 164.81, 220, 329.63].forEach((freq, i) => {
+    const osc = c.createOscillator(); osc.type = i < 2 ? "sine" : "triangle";
+    osc.frequency.value = freq; osc.detune.value = (i - 1.5) * 4;
+    const g = c.createGain(); g.gain.value = i < 2 ? 0.18 : 0.10;
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.03 + i * 0.017;
+    const lfoAmt = c.createGain(); lfoAmt.gain.value = 0.08;
+    lfo.connect(lfoAmt); lfoAmt.connect(g.gain);
+    osc.connect(g); g.connect(out); osc.start(); lfo.start();
+    d5nodes.push(osc, lfo);
+  });
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+};
+
+/* ---- STEP 6: oscilloscope ---- */
+let d6osc = null, d6an = null, d6raf = null;
+function drawScope(canvas, analyser){
+  const cx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const resize = () => { const r = canvas.getBoundingClientRect(); canvas.width = r.width*dpr; canvas.height = r.height*dpr; cx.setTransform(dpr,0,0,dpr,0,0); };
+  resize();
+  const buf = new Uint8Array(analyser.fftSize);
+  let raf;
+  const loop = () => {
+    raf = requestAnimationFrame(loop);
+    const r = canvas.getBoundingClientRect();
+    cx.clearRect(0,0,r.width,r.height);
+    analyser.getByteTimeDomainData(buf);
+    cx.lineWidth = 1.5; cx.strokeStyle = "#00ff88"; cx.shadowBlur = 10; cx.shadowColor = "rgba(0,255,136,.5)";
+    cx.beginPath();
+    for(let i=0;i<buf.length;i++){ const x = (i/buf.length)*r.width; const y = (buf[i]/128)*(r.height/2); i?cx.lineTo(x,y):cx.moveTo(x,y); }
+    cx.stroke();
+  };
+  loop();
+  return () => cancelAnimationFrame(raf);
+}
+$("d6btn").onclick = (e) => {
+  const c = audio();
+  if(d6osc){ d6osc.stop(); d6osc = null; if(d6raf) d6raf(); d6raf = null; e.target.classList.remove("on"); e.target.textContent = "Start"; return; }
+  d6osc = c.createOscillator(); d6an = c.createAnalyser(); d6an.fftSize = 2048;
+  const g = c.createGain(); g.gain.value = 0.18;
+  d6osc.type = $("d6type").value; d6osc.frequency.value = 160;
+  d6osc.connect(g); g.connect(c.destination); g.connect(d6an); d6osc.start();
+  d6raf = drawScope($("d6canvas"), d6an);
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+};
+$("d6type").onchange = (e) => { if(d6osc) d6osc.type = e.target.value; };
+
+/* ---- STEP 7: full engine ---- */
+let d7 = null;
+function d7aim(x, y){
+  if(!d7) return;
+  const cutoff = 300 * Math.pow(4500/300, x);
+  const q = 0.5 + (1 - y) * 11.5;
+  const t = audio().currentTime;
+  d7.filter.frequency.setTargetAtTime(cutoff, t, 0.08);
+  d7.filter.Q.setTargetAtTime(q, t, 0.08);
+  $("d7read").textContent = `cutoff ${Math.round(cutoff)} Hz  ·  Q ${q.toFixed(1)}`;
+}
+attachPad($("d7pad"), $("d7cross"), d7aim);
+$("d7btn").onclick = (e) => {
+  const c = audio();
+  if(d7){
+    d7.osc.forEach(o => o.stop()); d7.noise.stop(); if(d7.stopScope) d7.stopScope();
+    d7 = null; e.target.classList.remove("on"); e.target.textContent = "Enter the signal"; return;
+  }
+  const master = c.createGain(); master.gain.value = 0.9;
+  const filter = c.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 900; filter.Q.value = 4;
+  const analyser = c.createAnalyser(); analyser.fftSize = 2048;
+  filter.connect(master); master.connect(c.destination); master.connect(analyser);
+
+  const osc = [];
+  [110, 164.81, 220, 329.63].forEach((freq, i) => {
+    const o = c.createOscillator(); o.type = i < 2 ? "sine" : "triangle";
+    o.frequency.value = freq; o.detune.value = (i - 1.5) * 4;
+    const g = c.createGain(); g.gain.value = i < 2 ? 0.18 : 0.10;
+    const lfo = c.createOscillator(); lfo.frequency.value = 0.03 + i * 0.017;
+    const lfoAmt = c.createGain(); lfoAmt.gain.value = 0.08;
+    lfo.connect(lfoAmt); lfoAmt.connect(g.gain);
+    o.connect(g); g.connect(filter); o.start(); lfo.start();
+    osc.push(o, lfo);
+  });
+
+  // quiet noise layer
+  const bs = 2 * c.sampleRate, buf = c.createBuffer(1, bs, c.sampleRate), d = buf.getChannelData(0);
+  for(let j=0;j<bs;j++) d[j] = (Math.random()*2-1) * 0.5;
+  const noise = c.createBufferSource(); noise.buffer = buf; noise.loop = true;
+  const nf = c.createBiquadFilter(); nf.type = "bandpass"; nf.frequency.value = 480;
+  const ng = c.createGain(); ng.gain.value = 0.04;
+  noise.connect(nf); nf.connect(ng); ng.connect(filter); noise.start();
+
+  const stopScope = drawScope($("d7canvas"), analyser);
+  d7 = { osc, noise, filter, master, analyser, stopScope };
+  e.target.classList.add("on"); e.target.textContent = "Stop";
+  d7aim(0.5, 0.5);
+};
+</script>
+</body>
+</html>
