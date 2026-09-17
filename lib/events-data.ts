@@ -43,6 +43,78 @@ export interface Event {
 
 export const events: Event[] = [
 
+  // ── 8. From Sound to Jam WS25/26 ─────────────────────────
+  {
+    timelineLabel: "OCT 25 – FEB 26",
+    date: "2025-10-23",
+    displayDate: "Oct 2025 – Feb 2026",
+    category: "WRK",
+    coverImage: "/images/ws2526/audiolab-session.jpg",
+    title: "From Sound to Jam",
+    shortDescription: "Seven sessions from October 2025 to February 2026 — sound, visuals, connecting the two, and live coding, ending in project presentations and a big group jam.",
+    people: [
+      { name: "Angela Brennecke", role: "Workshop — Blues & Improvisation" },
+      { name: "Elena Vasilkova", role: "Session lead — Audio for Total Beginners" },
+      { name: "Anna Ferro", role: "Session lead — Audio for Total Beginners, Visuals" },
+      { name: "Joel Schäfer", role: "Session lead — Connections" },
+      { name: "Lisa Passing", role: "Session lead — Strudel" },
+      { name: "Andreea-Cristina Mircea", role: "Participant" },
+      { name: "Aydin Thill", role: "Participant" },
+      { name: "Aljoša Dakić", role: "Participant" },
+      { name: "Philipp Gerdes", role: "Participant" },
+      { name: "Moritz Huson", role: "Participant" },
+      { name: "Imogen Drews", role: "Participant" },
+      { name: "Alexandra Lindt", role: "Guest student" },
+    ],
+    keywords: [
+      "Jam session",
+      "Blues",
+      "Improvisation",
+      "Layering",
+      "Ableton Live",
+      "TouchDesigner",
+      "Audio reactivity",
+      "MIDI",
+      "OSC",
+      "Live coding",
+      "Strudel",
+      "Collaboration",
+      "Live performance",
+    ],
+    longDescription: `
+Seven sessions running from October 2025 to February 2026, built so that participants with and without a musical background could find their own way of making sound and image — and then play together. The series moved from getting to know each other, through audio, visuals and the connections between them, to live coding and open project time, and closed with presentations and a big group jam.
+
+**Session 1 — Making Waves: Introduction & Shared Inspirations** (23 Oct 2025)
+Setting the tone. After an overview of the series, *Currents & Tides* was presented as an example of sound, experiment and collaboration, with a short demo. Everyone shared a piece of music or art they made or that inspires them, their perspective on creative practice, and what they hoped to explore and bring to the group. A tech test followed — connecting different instruments to the main audio interface so jam sessions could happen — along with first small-group experiments, and a reflection circle on how we listen, analyse and reimagine sound.
+
+**Session 2 — A/V Performances: Audio for Total Beginners** (6 Nov 2025)
+Led by Elena Vasilkova and Anna Ferro, with a workshop on blues & improvisation by Angela Brennecke. Sound creation, rhythm, layering and collaborative play. Blues served as a shared basis for jamming — a short history, the typical patterns, and how to transform them into a starting point for artistic expression and improvisation. Each participant chose a sound-making tool — a DAW, a hardware instrument, a programming environment, their voice or any object — learned its basics, and explored layering textures and rhythms. In a layering jam, participants entered one by one to build an evolving shared piece, listening for when to come in and when to leave space, before reflecting together on what emerged.
+
+**Session 3 — A/V Performances: Visuals** (20 Nov 2025)
+Led by Anna Ferro. Visual ideation, generative art, audio reactivity and live performance. A warm-up turned a song into a moodboard. After a showcase of TouchDesigner projects, a beginner workshop covered the node families with a focus on TOPs and SOPs — noise, feedback, displace, geometries and particles — building several visuals with different techniques. Participants then connected a MIDI controller to manipulate visuals live, and the session closed with tips for continuing and a first look at audio reactivity.
+
+**Session 4 — Connections** (11 Dec 2025)
+Led by Joel Schäfer. Connecting audio and visuals. A short presentation covered audio and video reactivity, direct modulation, audio vs. MIDI vs. OSC, and the difference between live instruments and interactive installations. The group applied these ideas to each participant's own audio tools on a shared Miro board, then put them into practice in an Ableton Live and TouchDesigner workshop, followed by open time for individual support, experiments and jamming.
+
+**Session 5 — Strudel** (15 Jan 2026)
+Led by Lisa Passing. An introduction to live coding as a practice and to Strudel for live coding audio — followed by jamming.
+
+**Session 6 — Open Project Work / Jamming** (29 Jan 2026)
+Project continuation, rehearsals and experiments in the AudioLab — open project time, jam labs, help, and informal sharing and feedback.
+
+**Session 7 — Project Presentations & Big Group Jam** (5 Feb 2026)
+Participants presented their projects, played a big group jam, and discussed feedback and ideas for the future — with beer.
+    `.trim(),
+    gallery: [
+      { src: "/images/ws2526/workshop-table.jpg", caption: "At the workshop table" },
+      { src: "/images/ws2526/braindance-presentation.jpg", caption: "Braindance — a presentation on the history of IDM" },
+      { src: "/images/ws2526/idm-influence.jpg", caption: "IDM influence now — Persona by Rival Consoles" },
+      { src: "/images/ws2526/untangling-cables.jpg", caption: "Untangling cables, keys at the ready" },
+      { src: "/images/ws2526/workshop-room.jpg", caption: "Workshop room — bass, keys and laptops around the table" },
+      { src: "/images/ws2526/audiolab-session.jpg", caption: "Jamming in the AudioLab" },
+    ],
+  },
+
   // ── 7. xCoAx Dundee ──────────────────────────────────────
   {
     timelineLabel: "JAN–JUL 25",

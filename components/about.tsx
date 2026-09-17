@@ -50,19 +50,23 @@ export function About() {
   ]
 
   const participants = [
-    { name: "Elena Vasilkova", context: "Kontrol Voltaj", events: "xCoAx, Filmuni 70" },
-    { name: "Joel Schäfer", context: "Multimodal Recursions", events: "xCoAx, Filmuni 70" },
-    { name: "Anna Ferro", context: "Multimodal Recursions", events: "xCoAx, Filmuni 70" },
-    { name: "Andreea-Cristina Mircea", context: "NINANIÑA / Documentation", events: "xCoAx, Filmuni 70, WS23/24" },
-    { name: "Aydin Thill", context: "Ay Din", events: "xCoAx" },
-    { name: "Lisa Passing", context: "Coordination", events: "xCoAx, WS23/24" },
+    { name: "Elena Vasilkova", context: "Kontrol Voltaj", events: "WS25/26, xCoAx, Filmuni 70" },
+    { name: "Joel Schäfer", context: "Multimodal Recursions", events: "WS25/26, xCoAx, Filmuni 70" },
+    { name: "Anna Ferro", context: "Multimodal Recursions", events: "WS25/26, xCoAx, Filmuni 70" },
+    { name: "Andreea-Cristina Mircea", context: "NINANIÑA / Documentation", events: "WS25/26, xCoAx, Filmuni 70, WS23/24" },
+    { name: "Aydin Thill", context: "Ay Din", events: "WS25/26, xCoAx" },
+    { name: "Lisa Passing", context: "Coordination", events: "WS25/26, xCoAx, WS23/24" },
     { name: "Martin Gordon", context: "Bass", events: "CX Studio" },
     { name: "Mauricio Brito", context: "Synth / Sound", events: "CX Studio, Filmuni 70" },
     { name: "Jonathan Ho", context: "Visuals", events: "CX Studio" },
     { name: "Elisabeth Scholz", context: "Performance", events: "Filmuni 70" },
     { name: "Lucas Grey", context: "Performance", events: "Filmuni 70" },
     { name: "Danylo Okulov", context: "Performance", events: "Filmuni 70" },
-    { name: "Aljoša Dakić", context: "Light Design", events: "Filmuni 70" },
+    { name: "Aljoša Dakić", context: "Light Design", events: "WS25/26, Filmuni 70" },
+    { name: "Philipp Gerdes", context: "Participant", events: "WS25/26" },
+    { name: "Moritz Huson", context: "Participant", events: "WS25/26" },
+    { name: "Imogen Drews", context: "Participant", events: "WS25/26" },
+    { name: "Alexandra Lindt", context: "Guest student", events: "WS25/26" },
   ]
 
   return (
