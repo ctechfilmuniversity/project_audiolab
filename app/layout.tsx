@@ -9,9 +9,9 @@ const openSans = Open_Sans({
 })
 
 export const metadata: Metadata = {
-  title: "AUDIOLAB — Experimental, Interactive & Real-time Sound | Making Waves",
+  title: "AUDIOLAB — Audiovisual Technologies, Composition, Performance & Research | Making Waves",
   description:
-    "AUDIOLAB is a research group at Filmuniversität Babelsberg KONRAD WOLF exploring experimental methodologies for interactive and real-time sound. Home of the Making Waves workshop series.",
+    "AUDIOLAB is a research group at Filmuniversität Babelsberg KONRAD WOLF working across four pillars: audiovisual technologies, songwriting & composition, interaction & performance, and experiment & research. Home of the Making Waves workshop series.",
 }
 
 export default function RootLayout({

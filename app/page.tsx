@@ -14,16 +14,44 @@ const CAT_COLORS: Record<string, string> = {
   PUB: "#ff6b00", // publication / orange
 }
 
-const FILTERS: { key: string; label: string }[] = [
+/* The four research pillars — they frame the page and filter the index */
+type PillarKey = "AVT" | "SNC" | "INP" | "EXR"
+
+const PILLARS: { key: PillarKey; n: string; h: string; p: string }[] = [
+  {
+    key: "AVT",
+    n: "01",
+    h: "Audiovisual Technologies",
+    p: "The technical ground the lab builds on: sound synthesis, real-time DSP, spatial and multi-channel audio, generative visuals, and the creative-coding tools that tie sound to image.",
+  },
+  {
+    key: "SNC",
+    n: "02",
+    h: "Songwriting & Composition",
+    p: "Writing music with and for these systems — songs, generative pieces and scores that combine analog and digital instruments, electronics and voice. The technology serves the piece, not the other way round.",
+  },
+  {
+    key: "INP",
+    n: "03",
+    h: "Interaction & Performance",
+    p: "How performers and audiences play a work through gesture, sensors, controllers and space, and how it holds up live. Interaction is part of the instrument, not an add-on.",
+  },
+  {
+    key: "EXR",
+    n: "04",
+    h: "Experiment & Research",
+    p: "Open-ended tests, published papers and documented methods — signal chains, patches, parameter sets and scores — so the work can be reproduced, re-performed and built on.",
+  },
+]
+
+const FILTERS: { key: "all" | PillarKey; label: string }[] = [
   { key: "all", label: "All" },
-  { key: "MTH", label: "Methods" },
-  { key: "PRF", label: "Performances" },
-  { key: "WRK", label: "Works" },
-  { key: "PUB", label: "Publications" },
+  ...PILLARS.map((p) => ({ key: p.key, label: p.h })),
 ]
 
 type IndexEntry = {
   cat: string
+  pillars: PillarKey[]
   title: string
   summary: string
   when: string
@@ -33,6 +61,7 @@ type IndexEntry = {
 const ENTRIES: IndexEntry[] = [
   {
     cat: "WRK",
+    pillars: ["AVT", "INP"],
     title: "Making Waves",
     summary:
       "Generative audiovisual workshop series — synthesis, creative coding, spatial audio. Since 2022. Enter the documentation →",
@@ -41,6 +70,7 @@ const ENTRIES: IndexEntry[] = [
   },
   {
     cat: "PUB",
+    pillars: ["EXR", "SNC"],
     title: "Currents & Tides: An Exploration of Generative Music in Three Acts",
     summary:
       "Paper — xCoAx 2025, Dundee. An electronic music performance integrating digital & analog music, generative audiovisuals and vocals, expanding from stereo to multi-channel. Schäfer, Ferro, Vasilkova, Mircea, Thill, Passing, Brennecke.",
@@ -48,39 +78,24 @@ const ENTRIES: IndexEntry[] = [
   },
   {
     cat: "PRF",
+    pillars: ["INP", "SNC"],
     title: "Tidal Drift",
     summary: "Elena Vasilkova. Act I of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
   },
   {
     cat: "PRF",
+    pillars: ["INP", "SNC"],
     title: "Multimodal Recursions",
     summary: "Joel Schäfer & Anna Ferro. Act II of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
   },
   {
     cat: "PRF",
+    pillars: ["INP", "SNC"],
     title: "Hybrid Realms",
     summary: "Aydin Thill & Andreea-Cristina Mircea. Act III of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
-  },
-]
-
-const FOCUS = [
-  {
-    k: "Real-time",
-    h: "Real-time sound systems",
-    p: "Systems that synthesise and process audio live during performance — generative, adaptive, low-latency — rather than playing back fixed recordings. Topics: real-time DSP, sound synthesis, and spatial / multi-channel audio.",
-  },
-  {
-    k: "Interactive",
-    h: "Interaction & control",
-    p: "How performers and audiences drive a piece through gesture, sensors, controllers and space, and how those inputs map to sonic and visual output. We treat interaction as part of the instrument, not an add-on.",
-  },
-  {
-    k: "Methodology",
-    h: "Reproducible methods",
-    p: "Each project is documented as a method others can reproduce — signal chains, patches, parameter sets and performance scores — so the practice is shareable and re-performable, not a one-off result.",
   },
 ]
 
@@ -88,7 +103,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false)
   const [soundOn, setSoundOn] = useState(false)
   const [audioSupported, setAudioSupported] = useState(true)
-  const [activeFilter, setActiveFilter] = useState<string>("all")
+  const [activeFilter, setActiveFilter] = useState<"all" | PillarKey>("all")
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const engineRef = useRef<{ play: () => void; pause: () => void } | null>(null)
@@ -282,10 +297,10 @@ export default function Home() {
   }, [])
 
   const visibleEntries =
-    activeFilter === "all" ? ENTRIES : ENTRIES.filter((e) => e.cat === activeFilter)
+    activeFilter === "all" ? ENTRIES : ENTRIES.filter((e) => e.pillars.includes(activeFilter))
 
   const navItems = [
-    { label: "Focus", href: "#focus" },
+    { label: "Pillars", href: "#pillars" },
     { label: "Index", href: "#index" },
     { label: "About", href: "#about" },
   ]
@@ -368,9 +383,11 @@ export default function Home() {
 
         <div className="max-w-xl border-l-2 border-foreground/30 pl-3 sm:pl-4 md:pl-5 mt-6 sm:mt-8">
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
-            A research group for experimental methodologies in{" "}
-            <span className="text-foreground">interactive and real-time sound</span> — sound synthesis,
-            spatial audio, creative coding, and live audiovisual performance. Home of the{" "}
+            A research group working across four pillars:{" "}
+            <span className="text-foreground">audiovisual technologies</span>,{" "}
+            <span className="text-foreground">songwriting &amp; composition</span>,{" "}
+            <span className="text-foreground">interaction &amp; performance</span>, and{" "}
+            <span className="text-foreground">experiment &amp; research</span>. Home of the{" "}
             <Link
               href="/making-waves"
               className="text-primary underline underline-offset-2 hover:text-white transition-colors"
@@ -416,19 +433,19 @@ export default function Home() {
         )}
       </section>
 
-      {/* ---------- FOCUS ---------- */}
+      {/* ---------- PILLARS ---------- */}
       <section
-        id="focus"
+        id="pillars"
         className="pt-10 sm:pt-12 md:pt-16 lg:pt-20 pb-10 sm:pb-14 md:pb-20 lg:pb-28 border-t border-border relative z-10 px-4 sm:px-5 md:px-8 lg:px-12"
       >
-        <SectionHead n="01" label="Research areas" title="Focus" />
-        <div className="grid md:grid-cols-3 gap-px bg-border border border-border">
-          {FOCUS.map((c) => (
-            <div key={c.k} className="bg-background p-5 sm:p-6 md:p-8">
+        <SectionHead n="01" label="Research pillars" title="Pillars" />
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-px bg-border border border-border">
+          {PILLARS.map((c) => (
+            <div key={c.key} className="bg-background p-5 sm:p-6 md:p-8">
               <span className="text-[9px] sm:text-[10px] tracking-widest text-primary uppercase font-semibold">
-                {c.k}
+                {c.n}
               </span>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight mt-3 mb-2.5">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold tracking-tight mt-3 mb-2.5 text-balance">
                 {c.h}
               </h3>
               <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{c.p}</p>
@@ -451,7 +468,7 @@ export default function Home() {
               Index
             </h2>
             <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-              Works, methods &amp; sessions
+              Works, performances &amp; publications — filter by pillar
             </p>
           </div>
           <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">
@@ -463,7 +480,6 @@ export default function Home() {
         <div className="flex gap-1.5 sm:gap-2 overflow-x-auto scrollbar-hide pb-2 -mb-2 mb-6 sm:mb-8">
           {FILTERS.map((f) => {
             const isActive = activeFilter === f.key
-            const color = f.key !== "all" ? CAT_COLORS[f.key] : null
             return (
               <button
                 key={f.key}
@@ -475,12 +491,6 @@ export default function Home() {
                     : "bg-transparent text-muted-foreground border border-border hover:border-foreground hover:text-foreground"
                 )}
               >
-                {color && (
-                  <span
-                    className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full"
-                    style={{ backgroundColor: color }}
-                  />
-                )}
                 {f.label}
               </button>
             )
@@ -519,6 +529,9 @@ export default function Home() {
                   </h3>
                   <p className="text-[11px] sm:text-xs md:text-sm text-muted-foreground leading-relaxed mt-1">
                     {e.summary}
+                  </p>
+                  <p className="text-[9px] sm:text-[10px] tracking-wider uppercase font-semibold text-muted-foreground/70 mt-2">
+                    {e.pillars.map((k) => PILLARS.find((p) => p.key === k)!.h).join(" · ")}
                   </p>
                 </div>
                 <span className="text-[9px] sm:text-[10px] md:text-xs tracking-wider text-muted-foreground uppercase whitespace-nowrap text-right flex items-center gap-1.5 self-center">
@@ -561,8 +574,8 @@ export default function Home() {
             </p>
             <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
               It brings together students and researchers from diverse disciplines — with and without a
-              musical background — to explore generative and real-time sound technologies, test them
-              inside a live audiovisual production process, and perform the results. Its workshops and
+              musical background — to develop audiovisual technologies, write and compose with them,
+              put them on stage, and document what they find. Its workshops and
               performances run under the{" "}
               <Link href="/making-waves" className="text-primary hover:text-white transition-colors">
                 Making Waves
@@ -688,7 +701,7 @@ function AudiolabFooter() {
               </a>
               <div className="h-6 sm:h-8 w-px bg-border" />
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-                Experimental · Interactive · Real-time sound
+                Audiovisual · Composition · Performance · Research
               </p>
             </div>
 
