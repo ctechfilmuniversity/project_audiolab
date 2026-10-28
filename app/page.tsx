@@ -15,33 +15,33 @@ const CAT_COLORS: Record<string, string> = {
   PUB: "#ff6b00", // publication / orange
 }
 
-/* The four research pillars — they frame the page and filter the index */
-type PillarKey = "AVT" | "SNC" | "INP" | "EXR"
+/* The four research areas (from the Notion Literature Review) — they frame the page and filter the index */
+type PillarKey = "RTS" | "SYN" | "LAV" | "GEN"
 
 const PILLARS: { key: PillarKey; n: string; h: string; p: string }[] = [
   {
-    key: "AVT",
+    key: "RTS",
     n: "01",
-    h: "Audiovisual Technologies",
-    p: "The technical ground the lab builds on: sound synthesis, real-time DSP, spatial and multi-channel audio, generative visuals, and the creative-coding tools that tie sound to image.",
+    h: "Real-Time Sound Systems",
+    p: "Audio engines and signal chains that respond while they are played: low-latency processing, sensor and gesture input, spatial and multichannel setups.",
   },
   {
-    key: "SNC",
+    key: "SYN",
     n: "02",
-    h: "Songwriting & Composition",
-    p: "Writing music with and for these systems — songs, generative pieces and scores that combine analog and digital instruments, electronics and voice. The technology serves the piece, not the other way round.",
+    h: "Sound Synthesis",
+    p: "Building sound from the ground up: granular, modular and digital synthesis, sound design, and the patches and parameter sets behind each piece.",
   },
   {
-    key: "INP",
+    key: "LAV",
     n: "03",
-    h: "Interaction & Performance",
-    p: "How performers and audiences play a work through gesture, sensors, controllers and space, and how it holds up live. Interaction is part of the instrument, not an add-on.",
+    h: "Live Audiovisual Performance",
+    p: "Sound and image made together, live, in front of an audience: generative visuals, real-time visualisation and multichannel concerts.",
   },
   {
-    key: "EXR",
+    key: "GEN",
     n: "04",
-    h: "Experiment & Research",
-    p: "Open-ended tests, published papers and documented methods — signal chains, patches, parameter sets and scores — so the work can be reproduced, re-performed and built on.",
+    h: "Generative Music",
+    p: "Music written as a system of rules, models and interfaces, so the piece takes a new shape each time it runs, from brush strokes mapped to notes to a concert in three acts.",
   },
 ]
 
@@ -61,8 +61,17 @@ type IndexEntry = {
 
 const ENTRIES: IndexEntry[] = [
   {
+    cat: "PRF",
+    pillars: ["LAV", "RTS"],
+    title: "Untracked",
+    summary:
+      "Anna Ferro. A live data-driven audiovisual performance on sexual harassment in urban spaces, built in TouchDesigner. Work-in-progress talk at xCoAx 2026, Turin.",
+    when: "2026",
+    href: "/making-waves",
+  },
+  {
     cat: "WRK",
-    pillars: ["AVT", "INP"],
+    pillars: ["SYN", "GEN"],
     title: "Making Waves",
     summary:
       "Generative audiovisual workshop series — synthesis, creative coding, spatial audio. Since 2022. Enter the documentation →",
@@ -71,7 +80,7 @@ const ENTRIES: IndexEntry[] = [
   },
   {
     cat: "PUB",
-    pillars: ["EXR", "SNC"],
+    pillars: ["GEN", "LAV"],
     title: "Currents & Tides: An Exploration of Generative Music in Three Acts",
     summary:
       "Paper — xCoAx 2025, Dundee. An electronic music performance integrating digital & analog music, generative audiovisuals and vocals, expanding from stereo to multi-channel. Schäfer, Ferro, Vasilkova, Mircea, Thill, Passing, Brennecke.",
@@ -79,21 +88,21 @@ const ENTRIES: IndexEntry[] = [
   },
   {
     cat: "PRF",
-    pillars: ["INP", "SNC"],
+    pillars: ["SYN", "LAV"],
     title: "Tidal Drift",
     summary: "Elena Vasilkova. Act I of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
   },
   {
     cat: "PRF",
-    pillars: ["INP", "SNC"],
+    pillars: ["RTS", "LAV"],
     title: "Multimodal Recursions",
     summary: "Joel Schäfer & Anna Ferro. Act II of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
   },
   {
     cat: "PRF",
-    pillars: ["INP", "SNC"],
+    pillars: ["LAV", "RTS"],
     title: "Hybrid Realms",
     summary: "Aydin Thill & Andreea-Cristina Mircea. Act III of Currents & Tides. xCoAx, Dundee.",
     when: "2025",
@@ -301,7 +310,7 @@ export default function Home() {
     activeFilter === "all" ? ENTRIES : ENTRIES.filter((e) => e.pillars.includes(activeFilter))
 
   const navItems = [
-    { label: "Pillars", href: "#pillars" },
+    { label: "Research", href: "#research" },
     { label: "Index", href: "#index" },
     { label: "About", href: "#about" },
   ]
@@ -384,11 +393,11 @@ export default function Home() {
 
         <div className="max-w-xl border-l-2 border-foreground/30 pl-3 sm:pl-4 md:pl-5 mt-6 sm:mt-8">
           <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed">
-            A research group working across four pillars:{" "}
-            <span className="text-foreground">audiovisual technologies</span>,{" "}
-            <span className="text-foreground">songwriting &amp; composition</span>,{" "}
-            <span className="text-foreground">interaction &amp; performance</span>, and{" "}
-            <span className="text-foreground">experiment &amp; research</span>. Home of the{" "}
+            A research group working across four research areas:{" "}
+            <span className="text-foreground">real-time sound systems</span>,{" "}
+            <span className="text-foreground">sound synthesis</span>,{" "}
+            <span className="text-foreground">live audiovisual performance</span>, and{" "}
+            <span className="text-foreground">generative music</span>. Home of the{" "}
             <Link
               href="/making-waves"
               className="text-primary underline underline-offset-2 hover:text-white transition-colors"
@@ -434,12 +443,12 @@ export default function Home() {
         )}
       </section>
 
-      {/* ---------- PILLARS ---------- */}
+      {/* ---------- RESEARCH AREAS ---------- */}
       <section
-        id="pillars"
+        id="research"
         className="pt-10 sm:pt-12 md:pt-16 lg:pt-20 pb-10 sm:pb-14 md:pb-20 lg:pb-28 border-t border-border relative z-10 px-4 sm:px-5 md:px-8 lg:px-12"
       >
-        <SectionHead n="01" label="Research pillars" title="Pillars" />
+        <SectionHead n="01" label="Research areas" title="Research" />
         <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-px bg-border border border-border">
           {PILLARS.map((c) => (
             <div key={c.key} className="bg-background p-5 sm:p-6 md:p-8">
@@ -469,7 +478,7 @@ export default function Home() {
               Index
             </h2>
             <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">
-              Works, performances &amp; publications — filter by pillar
+              Works, performances &amp; publications — filter by research area
             </p>
           </div>
           <p className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground uppercase tracking-wider font-semibold">
