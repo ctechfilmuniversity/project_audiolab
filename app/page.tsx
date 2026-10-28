@@ -67,7 +67,7 @@ const ENTRIES: IndexEntry[] = [
     summary:
       "Anna Ferro. A live data-driven audiovisual performance on sexual harassment in urban spaces, built in TouchDesigner. Work-in-progress talk at xCoAx 2026, Turin.",
     when: "2026",
-    href: "/making-waves",
+    href: "/untracked",
   },
   {
     cat: "WRK",
