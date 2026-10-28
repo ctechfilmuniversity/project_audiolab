@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { asset } from "@/lib/asset"
 import { ArrowUpRight, Github, ExternalLink, Youtube, Music } from "lucide-react"
 import {
   Dialog,
@@ -160,7 +161,7 @@ function EventCard({ event, onSelect }: { event: Event; onSelect: (event: Event)
         {event.coverImage ? (
           <>
             <Image
-              src={event.coverImage}
+              src={asset(event.coverImage)}
               alt={event.title}
               fill
               className="object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
@@ -221,7 +222,7 @@ function EventDialog({ event, onClose }: { event: Event | null; onClose: () => v
         {event.coverImage && (
           <div className="relative aspect-video w-full">
             <Image
-              src={event.coverImage}
+              src={asset(event.coverImage)}
               alt={event.title}
               fill
               className="object-cover"
@@ -329,7 +330,7 @@ function EventDialog({ event, onClose }: { event: Event | null; onClose: () => v
                   {event.gallery.map((img, i) => (
                     <div key={i} className="group/img relative aspect-video overflow-hidden bg-muted">
                       <Image
-                        src={img.src}
+                        src={asset(img.src)}
                         alt={img.caption || `Gallery image ${i + 1}`}
                         fill
                         className="object-cover transition-transform duration-300 group-hover/img:scale-105"

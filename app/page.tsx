@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { asset } from "@/lib/asset"
 import { ArrowUpRight, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -748,7 +749,7 @@ function AudiolabFooter() {
               className="opacity-60 hover:opacity-100 transition-opacity self-start sm:self-auto"
             >
               <Image
-                src="/filmuni-logo.png"
+                src={asset("/filmuni-logo.png")}
                 alt="Filmuniversität Babelsberg KONRAD WOLF"
                 width={180}
                 height={40}

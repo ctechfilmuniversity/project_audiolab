@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
+import { asset } from "@/lib/asset"
 import { ChevronLeft, ChevronRight, Github, ExternalLink, Youtube, Music, ArrowUpRight } from "lucide-react"
 import {
   Dialog,
@@ -238,7 +239,7 @@ export function Timeline() {
           {selectedEvent?.coverImage && (
             <div className="relative aspect-video w-full">
               <Image
-                src={selectedEvent.coverImage}
+                src={asset(selectedEvent.coverImage)}
                 alt={selectedEvent.title}
                 fill
                 className="object-cover"
@@ -342,7 +343,7 @@ export function Timeline() {
                         {selectedEvent.gallery.map((img, i) => (
                           <div key={i} className="group/img relative aspect-video overflow-hidden bg-muted">
                             <Image
-                              src={img.src}
+                              src={asset(img.src)}
                               alt={img.caption || `Gallery image ${i + 1}`}
                               fill
                               className="object-cover transition-transform duration-300 group-hover/img:scale-105"

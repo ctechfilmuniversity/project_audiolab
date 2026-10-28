@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { asset } from "@/lib/asset"
 import { Github, ArrowUpRight, Instagram, ArrowRight } from "lucide-react"
 
 export function Footer() {
@@ -102,7 +103,7 @@ export function Footer() {
               className="opacity-60 hover:opacity-100 transition-opacity self-start sm:self-auto"
             >
               <Image 
-                src="/filmuni-logo.png" 
+                src={asset("/filmuni-logo.png")} 
                 alt="Filmuniversität Babelsberg KONRAD WOLF" 
                 width={180} 
                 height={40}

@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Image from "next/image"
+import { asset } from "@/lib/asset"
 
 export function About() {
   const [expandedTopic, setExpandedTopic] = useState<number | null>(null)
@@ -113,7 +114,7 @@ export function About() {
                 className="inline-block opacity-60 hover:opacity-100 transition-opacity touch-manipulation"
               >
                 <Image 
-                  src="/filmuni-logo.png" 
+                  src={asset("/filmuni-logo.png")} 
                   alt="Filmuniversität Babelsberg KONRAD WOLF" 
                   width={180} 
                   height={40}

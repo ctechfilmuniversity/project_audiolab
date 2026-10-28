@@ -1,13 +1,14 @@
 /** @type {import('next').NextConfig} */
+
+// GitHub Pages serves the site from /project_audiolab; the workflow sets this.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ""
+
 const nextConfig = {
+  output: "export",
+  basePath,
+  trailingSlash: true,
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com',
-        pathname: '/**',
-      },
-    ],
+    unoptimized: true,
   },
 }
 
